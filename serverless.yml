@@ -7,7 +7,7 @@ provider:
   memorySize: 1024
   timeout: 30
   iam:
-    role: arn:aws:iam::447891120606:role/LabRole
+    role: arn:aws:iam::730335337301:role/LabRole
   environment:
     BUCKET_NAME: ${self:service}-${sls:stage}-ingesta-bucket
 
