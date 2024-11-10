@@ -3,9 +3,11 @@ service: api-comentario
 
 provider:
   name: aws
-  runtime: python3.12
+  runtime: python3.12	
   memorySize: 1024
   timeout: 30
+  iam:
+    role: arn:aws:iam::447891120606:role/LabRole
   environment:
     BUCKET_NAME: ${self:service}-${sls:stage}-ingesta-bucket
 
@@ -17,12 +19,6 @@ functions:
           path: /comentario/guardar
           method: post
           cors: true
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - "s3:PutObject"
-        Resource: 
-          - "arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*"
 
 resources:
   Resources:
