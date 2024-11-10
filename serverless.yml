@@ -1,0 +1,43 @@
+service: api-comentario
+
+provider:
+  name: aws
+  runtime: python3.12
+  environment:
+    BUCKET_NAME: ${self:service}-${sls:stage}-bucket
+
+functions:
+  crear:
+    handler: comentario.lambda_handler
+    events:
+      - http:
+          path: /comentario/crear
+          method: post
+          cors: true
+
+resources:
+  Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.BUCKET_NAME}
+        # Opcional: configuración de políticas de bucket o configuración de CORS
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              AllowedOrigins:
+                - "*"
+              MaxAge: 3000
+
+  # Opcional: permisos para que Lambda acceda al bucket
+  Outputs:
+    BucketName:
+      Value: !Ref S3Bucket
+      Export:
+        Name: ${self:service}-${sls:stage}-bucket-name
