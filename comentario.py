@@ -1,21 +1,21 @@
 import json
 import boto3
 import os
-from datetime import datetime
 import uuid
 
+# Crear cliente S3
 s3_client = boto3.client('s3')
 bucket_name = os.environ['BUCKET_NAME']
 
 def lambda_handler(event, context):
     try:
-        # Obtenemos los datos del cuerpo de la solicitud
+        # Obtener el JSON del cuerpo de la solicitud
         body = json.loads(event['body'])
         
-        # Creamos un nombre único para el archivo JSON
+        # Generar un nombre de archivo único
         file_name = f"{uuid.uuid4()}.json"
         
-        # Guardamos los datos en el bucket S3
+        # Guardar el JSON como archivo en el bucket S3
         s3_client.put_object(
             Bucket=bucket_name,
             Key=file_name,
@@ -23,15 +23,15 @@ def lambda_handler(event, context):
             ContentType='application/json'
         )
 
-        # Retornamos una respuesta exitosa
+        # Retornar una respuesta exitosa
         return {
             "statusCode": 200,
-            "body": json.dumps({"message": "Comentario guardado correctamente en S3", "file_name": file_name})
+            "body": json.dumps({"message": "Archivo guardado en S3", "file_name": file_name})
         }
     
     except Exception as e:
         # Manejo de errores
         return {
             "statusCode": 500,
-            "body": json.dumps({"message": "Error al guardar el comentario en S3", "error": str(e)})
+            "body": json.dumps({"message": "Error al guardar el archivo en S3", "error": str(e)})
         }
