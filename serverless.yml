@@ -1,27 +1,35 @@
+org: tenantutec123
 service: api-comentario
 
 provider:
   name: aws
   runtime: python3.12
+  memorySize: 1024
+  timeout: 30
   environment:
-    BUCKET_NAME: ${self:service}-${sls:stage}-bucket
+    BUCKET_NAME: ${self:service}-${sls:stage}-ingesta-bucket
 
 functions:
-  crear:
+  guardarEnBucket:
     handler: comentario.lambda_handler
     events:
       - http:
-          path: /comentario/crear
+          path: /comentario/guardar
           method: post
           cors: true
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "s3:PutObject"
+        Resource: 
+          - "arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*"
 
 resources:
   Resources:
-    S3Bucket:
+    S3BucketIngesta:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.BUCKET_NAME}
-        # Opcional: configuración de políticas de bucket o configuración de CORS
         CorsConfiguration:
           CorsRules:
             - AllowedHeaders:
@@ -35,9 +43,8 @@ resources:
                 - "*"
               MaxAge: 3000
 
-  # Opcional: permisos para que Lambda acceda al bucket
   Outputs:
     BucketName:
-      Value: !Ref S3Bucket
+      Value: !Ref S3BucketIngesta
       Export:
         Name: ${self:service}-${sls:stage}-bucket-name
